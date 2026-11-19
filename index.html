@@ -232,7 +232,6 @@ footer .wrap { padding-top: 26px; padding-bottom: 32px; display: flex; gap: 16px
         <label for="q" class="sr">Search by title, composer or text</label>
         <input id="q" type="search" placeholder="Search by title, composer or text" autocomplete="off">
       </div>
-      <div class="sample-note"><i></i> Sample works and fictional composers, here to test the design.</div>
     </div>
   </section>
 
@@ -344,7 +343,7 @@ footer .wrap { padding-top: 26px; padding-bottom: 32px; display: flex; gap: 16px
 <footer>
   <div class="wrap">
     <span>Choir Library, a choir music database. Part of <a href="https://www.sonicvox.nl" rel="noopener">Sonic Vox</a>.</span>
-    <span>Working title and sample content</span>
+    <span>Working title</span>
   </div>
 </footer>
 
@@ -369,18 +368,9 @@ footer .wrap { padding-top: 26px; padding-bottom: 32px; display: flex; gap: 16px
   var BEGELEIDING = ["A cappella", "Piano", "Organ", "Percussion", "Electronics", "Other instrument"];
 
   var WORKS = [
-    { id: "1", titel: "Waar het water zwijgt", componist: "Mirthe van Laar", jaar: 2025, genres: ["Classical"], niveau: "Advanced", code: "SATB", stemgroep: "SATB", stemTekst: "SATB divisi", begeleiding: ["A cappella"], taal: "Dutch", duur: 5, tekst: "A five-minute piece on a poem about the silence after a storm. Lots of room to breathe, slow shifts of colour and an ending that fades out in three steps.", luister: "YouTube" },
-    { id: "2", titel: "Lichtjes in de gracht", componist: "Daan Oosterhuis", jaar: 2024, genres: ["Classical"], niveau: "Intermediate", code: "SATB", stemgroep: "SATB", stemTekst: "SATB", begeleiding: ["Piano"], taal: "Dutch", duur: 3, tekst: "A new Dutch Christmas song with a singable melody and a piano part that a good amateur can play.", luister: "SoundCloud" },
-    { id: "3", titel: "Rise and Settle", componist: "Noor Haddad", jaar: 2025, genres: ["Pop & Jazz"], niveau: "Beginner", code: "SAB", stemgroep: "SAB", stemTekst: "SAB", begeleiding: ["Piano"], taal: "English", duur: 3, tekst: "An accessible pop number for choirs with few men. The bass line sits comfortably and the choruses are quick to learn.", luister: "Spotify" },
-    { id: "4", titel: "Acht stemmen, één adem", componist: "Ilse Verbeek", jaar: 2022, genres: ["Classical"], niveau: "Professional", code: "SSAATTBB", stemgroep: "", stemTekst: "SSAATTBB", begeleiding: ["A cappella"], taal: "Latin", duur: 9, tekst: "A demanding eight-part work with microtonal details. Suited to chamber choirs with experienced singers.", luister: "YouTube" },
-    { id: "5", titel: "Kali Mera", componist: "Yara Demir", jaar: 2023, genres: ["Folk"], niveau: "Intermediate", code: "SSAA", stemgroep: "", stemTekst: "SSAA and frame drum", begeleiding: ["Other instrument"], taal: "Multilingual", duur: 4, tekst: "A rhythmic song for four female voices and frame drum, based on Anatolian dance rhythms.", luister: "SoundCloud" },
-    { id: "6", titel: "Glitchkoor I", componist: "Joris Bakker", jaar: 2025, genres: ["Classical"], niveau: "Advanced", code: "SATB", stemgroep: "SATB", stemTekst: "SATB and tape", begeleiding: ["Electronics"], taal: "No text (vocal sounds)", duur: 6, tekst: "Choir and electronics in dialogue. The choir sings sounds that a backing track processes live. Click track and audio files are included.", luister: "YouTube" },
-    { id: "7", titel: "Jazzpsalm", componist: "Fenna de Wit", jaar: 2023, genres: ["Pop & Jazz", "Classical"], niveau: "Advanced", code: "SATB", stemgroep: "SATB", stemTekst: "SATB", begeleiding: ["Piano", "Other instrument"], taal: "English", duur: 4, tekst: "A psalm setting in jazz harmony with piano trio. Swinging rhythms and rich chords.", luister: "Spotify" },
-    { id: "8", titel: "Hoor de wind", componist: "Tim Koster", jaar: 2024, genres: ["Folk"], niveau: "Beginner", code: "SA", stemgroep: "Unison or two-part", stemTekst: "Unison and two-part", begeleiding: ["Piano"], taal: "Dutch", duur: 2, tekst: "A short song for children's choir about the wind in autumn. Movements for the chorus are marked in the score.", luister: "YouTube" },
-    { id: "9", titel: "Gospel in G", componist: "Marlon Adjei", jaar: 2022, genres: ["Pop & Jazz"], niveau: "Intermediate", code: "SATB", stemgroep: "SATB", stemTekst: "SATB", begeleiding: ["Piano", "Percussion"], taal: "English", duur: 4, tekst: "A rousing gospel with call-and-response and a solo for alto or tenor.", luister: "YouTube" },
-    { id: "10", titel: "Requiem voor een rivier", componist: "Anouk Smit", jaar: 2021, genres: ["Classical"], niveau: "Professional", code: "SATB", stemgroep: "SATB", stemTekst: "SATB", begeleiding: ["Organ"], taal: "Latin", duur: 18, tekst: "A requiem in five movements with organ. Written for experienced choirs and a large church space.", luister: "SoundCloud" },
-    { id: "11", titel: "Wiegelied zonder naam", componist: "Lotte Hendriks", jaar: 2025, genres: ["Folk"], niveau: "Beginner", code: "SA", stemgroep: "", stemTekst: "SA", begeleiding: ["A cappella"], taal: "Dutch", duur: 2, tekst: "A short a cappella arrangement of an anonymous lullaby, also suited as an encore.", luister: "YouTube" },
-    { id: "12", titel: "Stadsgeluid", componist: "Sam Peters", jaar: 2024, genres: ["Pop & Jazz"], niveau: "Intermediate", code: "TTBB", stemgroep: "Equal voices (SSA, TTBB)", stemTekst: "TTBB and electronics", begeleiding: ["Electronics"], taal: "Dutch", duur: 5, tekst: "A male-voice piece in which recorded street sounds set the rhythm. The recordings come as an audio file.", luister: "SoundCloud" }
+    /* No works yet. Each work looks like this:
+    { id: "1", titel: "Title", componist: "Name", jaar: 2025, genres: ["Classical"], niveau: "Advanced", code: "SATB", stemTekst: "SATB divisi",
+      begeleiding: ["A cappella"], taal: "English", duur: 5, tekst: "Short description.", luister: "YouTube" } */
   ];
   var SHOP = "https://example.com/";
 
@@ -390,7 +380,7 @@ footer .wrap { padding-top: 26px; padding-bottom: 32px; display: flex; gap: 16px
     { key: "niveau", label: "Level", options: NIVEAUS, get: function (w) { return [w.niveau]; } },
     { key: "stemgroep", label: "Voices", options: STEMGROEPEN, groups: VOICE_GROUPS, get: function (w) { return [w.code]; } },
     { key: "begeleiding", label: "Accompaniment", options: BEGELEIDING, get: function (w) { return w.begeleiding; } },
-    { key: "taal", label: "Language", options: uniq(WORKS.map(function (w) { return w.taal; })).sort(), get: function (w) { return [w.taal]; } }
+    { key: "taal", label: "Language", options: uniq(["English", "Dutch", "German", "French", "Latin", "Multilingual", "No text (vocal sounds)"].concat(WORKS.map(function (w) { return w.taal; }))), get: function (w) { return [w.taal]; } }
   ];
   function uniq(a) { return a.filter(function (x, i) { return a.indexOf(x) === i; }); }
 
@@ -467,8 +457,10 @@ footer .wrap { padding-top: 26px; padding-bottom: 32px; display: flex; gap: 16px
   }
   function render() {
     var list = sorted(WORKS.filter(function (w) { return matches(w); }));
-    $("count").textContent = list.length + (list.length === 1 ? " work" : " works");
-    if (!list.length) {
+    $("count").textContent = WORKS.length ? list.length + (list.length === 1 ? " work" : " works") : "";
+    if (!WORKS.length) {
+      $("grid").innerHTML = '<div class="empty" style="grid-column:1/-1"><h3>The first works are on their way</h3><p>Composers are just starting to add their music. Are you a composer? Add your work and be one of the first.</p><a class="btn primary" href="#submit">Submit your work</a></div>';
+    } else if (!list.length) {
       $("grid").innerHTML = '<div class="empty" style="grid-column:1/-1"><h3>Nothing found</h3><p>Try fewer filters or another search term.</p><button class="btn" type="button" id="empty-clear">Clear all filters</button></div>';
       var ec = $("empty-clear"); if (ec) ec.onclick = clearAll;
     } else {
@@ -488,10 +480,10 @@ footer .wrap { padding-top: 26px; padding-bottom: 32px; display: flex; gap: 16px
 
   var HUES = [255, 280, 305];
   function buildTiles() {
-    var html = '<button type="button" class="tile all" data-g="" aria-pressed="true"><b>All genres</b><span>' + WORKS.length + ' works</span></button>';
+    var html = '<button type="button" class="tile all" data-g="" aria-pressed="true"><b>All genres</b><span>' + (WORKS.length ? WORKS.length + ' works' : 'Coming soon') + '</span></button>';
     GENRES.forEach(function (g, i) {
       var n = WORKS.filter(function (w) { return w.genres.indexOf(g) !== -1; }).length;
-      html += '<button type="button" class="tile" data-g="' + esc(g) + '" style="--h:' + HUES[i % HUES.length] + '" aria-pressed="false"><b>' + esc(g) + '</b><span>' + n + (n === 1 ? ' work' : ' works') + '</span></button>';
+      html += '<button type="button" class="tile" data-g="' + esc(g) + '" style="--h:' + HUES[i % HUES.length] + '" aria-pressed="false"><b>' + esc(g) + '</b><span>' + (WORKS.length ? n + (n === 1 ? ' work' : ' works') : 'Coming soon') + '</span></button>';
     });
     $("genre-tiles").innerHTML = html;
   }
