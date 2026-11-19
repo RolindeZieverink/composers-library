@@ -1,0 +1,608 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Choir Library</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;500&family=Inter:wght@400;500;600;800&family=Poppins:wght@300;400&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+
+/* Zelfde sfeer als sonicvox.nl: bijna zwart (#121212), violet accent (#7332FF), grote spookletters achter serif-titels, vierkante knoppen. */
+:root {
+  --bg: #121212;
+  --surface: #19191C;
+  --ink: #FFFFFF;
+  --muted: #B9B5C6;
+  --line: #34323A;
+  --ghost: #2F2E2E;
+  --accent: #7332FF;
+  --accent-text: #A988FF;
+  --soft: rgba(115, 50, 255, .16);
+  --font-display: "EB Garamond", Palatino, "Palatino Linotype", Georgia, serif;
+  --font-body: "Inter", "Helvetica Neue", Arial, sans-serif;
+  --font-nav: "Poppins", "Inter", Arial, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, Menlo, Consolas, monospace;
+  color-scheme: dark;
+}
+
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; background: var(--bg); }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 400 16px/1.6 var(--font-body); -webkit-font-smoothing: antialiased; }
+a { color: inherit; }
+button, input, select, textarea { font: inherit; color: inherit; }
+:focus-visible { outline: 2px solid var(--accent-text); outline-offset: 2px; }
+.wrap { max-width: 1180px; margin: 0 auto; padding: 0 20px; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+/* Kop */
+.top { position: absolute; top: 0; left: 0; right: 0; z-index: 5; }
+.top .wrap { display: flex; align-items: center; gap: 20px; min-height: 84px; flex-wrap: wrap; padding-top: 10px; padding-bottom: 10px; }
+.brand { text-decoration: none; display: flex; flex-direction: column; line-height: 1; gap: 5px; }
+.brand b { font: 400 24px var(--font-nav); letter-spacing: .28em; text-transform: uppercase; font-weight: 300; }
+.brand small { font: 300 9px var(--font-nav); letter-spacing: .3em; text-transform: uppercase; color: var(--muted); }
+.nav { margin-left: auto; display: flex; gap: 6px 22px; align-items: center; flex-wrap: wrap; font-family: var(--font-nav); font-weight: 300; font-size: 14px; }
+.nav a { text-decoration: none; padding: 8px 2px; }
+.nav a:hover, .nav a[aria-current="page"] { color: var(--accent-text); }
+
+/* Hero */
+.hero { position: relative; overflow: hidden; padding-top: 84px; background: #12063f; isolation: isolate; }
+.hero .aurora { position: absolute; inset: -20%; z-index: -1; filter: blur(40px) saturate(1.2);
+  background:
+    radial-gradient(40% 50% at 20% 30%, #4a14e0 0%, transparent 70%),
+    radial-gradient(35% 45% at 75% 25%, #2a1bd6 0%, transparent 70%),
+    radial-gradient(30% 40% at 55% 75%, #b0279b 0%, transparent 70%),
+    radial-gradient(45% 50% at 90% 85%, #5a1bd0 0%, transparent 70%),
+    #14064a; }
+.hero::after { content: ""; position: absolute; inset: auto 0 0 0; height: 140px; background: linear-gradient(to bottom, transparent, var(--bg)); z-index: -1; }
+.hero .wrap { padding-top: 48px; padding-bottom: 64px; }
+.hero h1 { font: 400 clamp(40px, 8vw, 104px)/.98 var(--font-display); text-transform: uppercase; margin: 0 0 22px; max-width: 14ch; text-wrap: balance; }
+.hero p { margin: 0 0 28px; max-width: 58ch; font-size: 17px; color: #E6E1F5; }
+.search { display: flex; max-width: 560px; background: rgba(10, 6, 30, .55); border: 1px solid rgba(255,255,255,.55); backdrop-filter: blur(6px); }
+.search input { flex: 1; min-width: 0; border: 0; background: transparent; padding: 15px 18px; font-size: 16px; }
+.search input::placeholder { color: #C9C2E4; }
+.search input:focus-visible { outline: none; }
+.search:focus-within { border-color: #fff; box-shadow: 0 0 0 1px #fff; }
+.sample-note { display: inline-flex; gap: 10px; align-items: center; margin-top: 20px; font: 300 13px var(--font-nav); color: #D8D1F0; }
+.sample-note i { width: 8px; height: 8px; background: #fff; border-radius: 50%; display: inline-block; }
+
+/* Spookletters achter titels */
+.ghost { font: 800 clamp(56px, 14vw, 160px)/1 var(--font-body); color: var(--ghost); text-transform: uppercase; letter-spacing: -0.02em; user-select: none; pointer-events: none; white-space: nowrap; overflow: hidden; margin-bottom: -.42em; }
+
+/* Zoeken */
+.sect-title { font: 400 clamp(28px, 4vw, 40px)/1.1 var(--font-display); margin: 0 0 8px; position: relative; }
+.finder-wrap { padding-top: 36px; }
+.finder { display: grid; grid-template-columns: 270px 1fr; gap: 36px; padding-top: 24px; padding-bottom: 72px; align-items: start; }
+.filters { position: sticky; top: 16px; }
+.filters-head { display: flex; align-items: baseline; justify-content: space-between; margin-bottom: 6px; }
+.filters-head h2 { font: 400 24px var(--font-display); margin: 0; }
+.link-btn { background: none; border: 0; padding: 4px 0; color: var(--accent-text); cursor: pointer; font: 400 14px var(--font-nav); text-decoration: underline; text-underline-offset: 3px; }
+fieldset { border: 0; border-top: 1px solid var(--line); margin: 0; padding: 14px 0 12px; min-width: 0; }
+legend { font: 400 12px var(--font-nav); text-transform: uppercase; letter-spacing: .16em; color: var(--muted); padding: 0; margin-bottom: 8px; float: left; width: 100%; }
+fieldset > .opts { clear: both; }
+.opt { display: flex; align-items: center; gap: 10px; padding: 5px 0; cursor: pointer; font-size: 15px; }
+.opt input { width: 18px; height: 18px; accent-color: var(--accent); margin: 0; flex: none; }
+.opt .n { margin-left: auto; font: 300 12px var(--font-nav); color: var(--muted); font-variant-numeric: tabular-nums; }
+.opt.dim { opacity: .4; }
+.btn.filter-toggle { display: none; }
+
+.bar { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; margin-bottom: 18px; }
+.count { font: 400 28px var(--font-display); }
+.chips { display: flex; gap: 6px; flex-wrap: wrap; flex: 1 1 100%; order: 3; }
+.chip { display: inline-flex; align-items: center; gap: 8px; background: var(--soft); color: var(--ink); border: 1px solid var(--accent); padding: 4px 8px 4px 12px; font: 300 13px var(--font-nav); cursor: pointer; }
+.chip b { font-weight: 400; color: var(--accent-text); font-size: 16px; line-height: 1; }
+.sort { margin-left: auto; display: flex; align-items: center; gap: 8px; font: 300 14px var(--font-nav); color: var(--muted); }
+.sort select { border: 1px solid var(--line); background: var(--surface); padding: 7px 10px; }
+
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(290px, 1fr)); gap: 18px; }
+.card { position: relative; background: var(--surface); border: 1px solid var(--line); padding: 20px; display: flex; flex-direction: column; gap: 14px; transition: border-color .15s, background .15s; }
+.card:hover { border-color: var(--accent); background: #1d1a26; }
+.card-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+.genre { font: 400 11.5px var(--font-nav); color: var(--accent-text); text-transform: uppercase; letter-spacing: .16em; }
+.card h3 { margin: 6px 0 2px; font: 400 27px/1.1 var(--font-display); text-wrap: balance; }
+.card h3 a { text-decoration: none; }
+.card h3 a::after { content: ""; position: absolute; inset: 0; }
+.by { color: var(--muted); font-size: 15px; margin: 0; }
+.voices { display: flex; gap: 3px; flex: none; }
+.sub { font: 400 11px var(--font-nav); letter-spacing: .14em; text-transform: uppercase; color: var(--accent-text); margin: 12px 0 2px; }
+.v.wide { width: auto; padding: 0 9px; font-size: 12px; letter-spacing: .02em; }
+.v { width: 24px; height: 28px; display: grid; place-items: center; font: 500 13px var(--font-mono); background: var(--accent); color: #fff; }
+.meta { display: flex; flex-wrap: wrap; gap: 6px; margin: 0; padding: 0; list-style: none; }
+.meta li { font: 300 13px var(--font-nav); border: 1px solid var(--line); padding: 2px 10px; color: var(--muted); }
+.card-foot { margin-top: auto; display: flex; align-items: center; justify-content: space-between; gap: 10px; padding-top: 12px; border-top: 1px solid var(--line); }
+.level { display: flex; align-items: center; gap: 8px; font: 300 13px var(--font-nav); color: var(--muted); }
+.bars { display: flex; gap: 2px; align-items: flex-end; height: 16px; }
+.bars span { width: 5px; background: #3b3944; }
+.bars span:nth-child(1) { height: 6px; } .bars span:nth-child(2) { height: 9px; } .bars span:nth-child(3) { height: 12px; } .bars span:nth-child(4) { height: 16px; }
+.bars span.on { background: var(--accent-text); }
+.dur { font: 300 13px var(--font-nav); color: var(--muted); }
+.empty { border: 1px dashed var(--line); padding: 44px 24px; text-align: center; }
+.empty h3 { font: 400 28px var(--font-display); margin: 0 0 6px; }
+.empty p { margin: 0 0 16px; color: var(--muted); }
+
+/* Knoppen: vierkant, zoals op sonicvox.nl */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border: 1px solid rgba(255,255,255,.7); background: transparent; padding: 13px 22px; font: 300 14px var(--font-nav); letter-spacing: .04em; text-decoration: none; cursor: pointer; }
+.btn:hover { background: rgba(255,255,255,.1); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+.btn.primary:hover { background: #8550ff; border-color: #8550ff; }
+.nav a.cta { background: var(--accent); padding: 9px 18px; color: #fff; }
+.nav a.cta:hover { background: #8550ff; color: #fff; }
+
+/* Detail */
+.overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, .7); display: none; justify-content: flex-end; z-index: 50; }
+.overlay.open { display: flex; }
+.panel { background: #151518; border-left: 1px solid var(--line); width: min(580px, 100%); height: 100%; overflow-y: auto; padding: 32px; position: relative; }
+.panel .close { position: absolute; top: 14px; right: 14px; width: 42px; height: 42px; border: 1px solid var(--line); background: transparent; cursor: pointer; font-size: 22px; line-height: 1; }
+.panel .close:hover { border-color: #fff; }
+.panel h2 { font: 400 clamp(34px, 5vw, 46px)/1.04 var(--font-display); margin: 8px 44px 8px 0; text-wrap: balance; }
+.panel .by { font-size: 17px; margin-bottom: 18px; }
+.panel .voices { margin-bottom: 20px; }
+.panel .v { width: 32px; height: 38px; font-size: 17px; }
+.panel .desc { font-size: 16.5px; margin: 0 0 22px; color: #E6E3EE; }
+dl.facts { display: grid; grid-template-columns: 130px 1fr; margin: 0 0 26px; border-top: 1px solid var(--line); }
+dl.facts dt, dl.facts dd { margin: 0; padding: 10px 0; border-bottom: 1px solid var(--line); font-size: 15px; }
+dl.facts dt { font: 400 11.5px var(--font-nav); text-transform: uppercase; letter-spacing: .14em; color: var(--muted); padding-top: 13px; }
+.actions { display: flex; flex-direction: column; gap: 10px; }
+.fine { font: 300 13.5px var(--font-nav); color: var(--muted); margin: 14px 0 0; }
+
+/* Aanmelden */
+.apply-hero { padding-top: 84px; background: linear-gradient(180deg, #1a0a55 0%, var(--bg) 100%); }
+.apply-hero .wrap { padding-top: 40px; padding-bottom: 24px; }
+.apply-hero h1 { font: 400 clamp(38px, 7vw, 84px)/1 var(--font-display); text-transform: uppercase; margin: 0 0 14px; max-width: 16ch; text-wrap: balance; }
+.apply-hero .lead { color: #E6E1F5; font-size: 17px; max-width: 58ch; margin: 0; }
+.apply { padding-top: 36px; padding-bottom: 72px; display: grid; grid-template-columns: minmax(0, 1fr) 320px; gap: 44px; align-items: start; }
+form .row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+.field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 16px; min-width: 0; }
+.field label, .field .lbl { font-weight: 500; font-size: 14.5px; }
+.field .hint { font-size: 13px; color: var(--muted); font-weight: 300; }
+.field input[type=text], .field input[type=email], .field input[type=url], .field input[type=number], .field select, .field textarea { border: 1px solid #3f3c48; background: #1b1b1f; padding: 12px; width: 100%; }
+.field textarea { min-height: 110px; resize: vertical; }
+.field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: var(--accent-text); box-shadow: 0 0 0 1px var(--accent-text); }
+.field input:user-invalid, .field select:user-invalid, .field textarea:user-invalid { border-color: #FF6B7A; }
+.checks { display: flex; flex-wrap: wrap; gap: 8px 18px; }
+.checks .opt { padding: 2px 0; }
+.err { color: #FF8A96; font: 400 13px var(--font-nav); }
+.counter { font: 300 12px var(--font-nav); color: var(--muted); align-self: flex-end; }
+h2.sec { font: 400 28px var(--font-display); margin: 30px 0 14px; padding-top: 20px; border-top: 1px solid var(--line); }
+.steps { background: var(--surface); border: 1px solid var(--line); padding: 22px; position: sticky; top: 16px; }
+.steps h2 { font: 400 26px var(--font-display); margin: 0 0 14px; }
+.steps ol { margin: 0; padding: 0; list-style: none; counter-reset: s; display: flex; flex-direction: column; gap: 14px; }
+.steps li { counter-increment: s; display: grid; grid-template-columns: 28px 1fr; gap: 12px; font-size: 15px; }
+.steps li::before { content: counter(s); width: 28px; height: 28px; border: 1px solid var(--accent-text); color: var(--accent-text); font: 400 14px var(--font-nav); display: grid; place-items: center; }
+.done { background: var(--surface); border: 1px solid var(--accent); padding: 26px; }
+.done h2 { font: 400 34px var(--font-display); margin: 0 0 10px; }
+.done pre { background: #0e0e10; border: 1px solid var(--line); padding: 14px; overflow-x: auto; font: 400 13px/1.5 var(--font-mono); margin: 14px 0 18px; }
+
+footer { border-top: 1px solid var(--line); }
+footer .wrap { padding-top: 26px; padding-bottom: 32px; display: flex; gap: 16px; justify-content: space-between; flex-wrap: wrap; font: 300 14px var(--font-nav); color: var(--muted); }
+
+[hidden] { display: none !important; }
+
+@media (max-width: 860px) {
+  .finder { grid-template-columns: 1fr; gap: 12px; }
+  .filters { position: static; }
+  .btn.filter-toggle { display: inline-flex; width: 100%; }
+  .filters .body { display: none; margin-top: 10px; background: var(--surface); border: 1px solid var(--line); padding: 6px 16px 12px; }
+  .filters.open .body { display: block; }
+  .apply { grid-template-columns: 1fr; }
+  .steps { position: static; order: -1; }
+  form .row { grid-template-columns: 1fr; }
+  .panel { padding: 24px 18px; }
+  .top .wrap { min-height: 72px; }
+  .hero, .apply-hero { padding-top: 160px; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; scroll-behavior: auto !important; } }
+
+.genres { padding-top: 36px; padding-bottom: 12px; }
+.tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(210px, 1fr)); gap: 14px; margin-top: 18px; }
+.tile { position: relative; text-align: left; cursor: pointer; min-height: 150px; padding: 18px 20px; border: 1px solid var(--line); display: flex; flex-direction: column; justify-content: space-between; gap: 14px;
+  background: linear-gradient(140deg, hsl(var(--h, 265) 75% 24%) 0%, hsl(var(--h, 265) 60% 12%) 55%, #121212 100%); transition: border-color .15s, transform .15s; }
+.tile:hover { border-color: #fff; transform: translateY(-2px); }
+.tile[aria-pressed="true"] { border-color: #fff; box-shadow: inset 0 0 0 1px #fff; }
+.tile b { font: 400 32px/1.1 var(--font-display); text-wrap: balance; }
+.tile span { font: 300 13px var(--font-nav); color: #D8D1F0; }
+.tile.all { background: transparent; border-style: dashed; }
+.composers { padding-top: 36px; padding-bottom: 8px; }
+.composers .sect-title { margin-bottom: 14px; }
+.composers p { max-width: 62ch; font-size: 18px; color: #E6E3EE; margin: 0 0 24px; }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap">
+    <a class="brand" href="#" id="home-link"><b>Choir Library</b><small>Choir music database</small></a>
+    <nav class="nav" aria-label="Main menu">
+      <a href="#" id="nav-zoek">Find music</a>
+      <a href="https://www.sonicvox.nl" rel="noopener">Sonic Vox</a>
+      <a href="#submit" class="cta" id="nav-aanmelden">Submit your work</a>
+    </nav>
+  </div>
+</header>
+
+<!-- FIND -->
+<div id="view-zoek">
+  <section class="hero" aria-labelledby="h1">
+    <div class="aurora" aria-hidden="true"></div>
+    <div class="wrap">
+      <h1 id="h1">Music your choir hasn't sung yet</h1>
+      <p>Composers submit their own choral works. You filter by genre, level and voicing, then click through to the composer, who sells the score directly.</p>
+      <div class="search" role="search">
+        <label for="q" class="sr">Search by title, composer or text</label>
+        <input id="q" type="search" placeholder="Search by title, composer or text" autocomplete="off">
+      </div>
+      <div class="sample-note"><i></i> Sample works and fictional composers, here to test the design.</div>
+    </div>
+  </section>
+
+  <section class="wrap genres" aria-labelledby="genre-title">
+    <div class="ghost" aria-hidden="true">Genres</div>
+    <h2 class="sect-title" id="genre-title">Start with a genre</h2>
+    <div class="tiles" id="genre-tiles"></div>
+  </section>
+
+  <section class="wrap composers" aria-labelledby="comp-title">
+    <div class="ghost" aria-hidden="true">Composers</div>
+    <h2 class="sect-title" id="comp-title">Composers</h2>
+    <p>Are you a composer and would you like to appear in this database with your own works? Fill in the form! This site is meant for all composers who want to share their work and be easy to find for all kinds of choirs!</p>
+    <a class="btn primary" href="#submit">Fill in the form</a>
+  </section>
+
+  <div class="wrap finder-wrap" id="results"><div class="ghost" aria-hidden="true">Repertoire</div><h2 class="sect-title">New choir music</h2></div>
+  <main class="wrap finder">
+    <aside class="filters" id="filters" aria-label="Filters">
+      <button class="btn filter-toggle" id="filter-toggle" aria-expanded="false" aria-controls="filter-body">Filters <span id="filter-badge"></span></button>
+      <div class="body" id="filter-body">
+        <div class="filters-head"><h2>Filters</h2><button class="link-btn" id="clear-all" type="button">Clear all</button></div>
+        <div id="facets"></div>
+      </div>
+    </aside>
+
+    <section aria-live="polite">
+      <div class="bar">
+        <div class="count" id="count"></div>
+        <div class="sort"><label for="sort">Sort</label>
+          <select id="sort">
+            <option value="nieuw">Newest first</option>
+            <option value="titel">Title A–Z</option>
+            <option value="duur">Shortest first</option>
+            <option value="niveau">Easiest first</option>
+          </select>
+        </div>
+        <div class="chips" id="chips"></div>
+      </div>
+      <div class="grid" id="grid"></div>
+    </section>
+  </main>
+</div>
+
+<!-- SUBMIT -->
+<div id="view-aanmelden" hidden>
+  <section class="apply-hero"><div class="wrap"><div class="ghost" aria-hidden="true">Submit</div><h1>Let conductors find your music</h1>
+    <p class="lead">Fill in the details of each work. After review it goes into the database. You sell through your own site or webshop; we only link to it.</p></div></section>
+  <div class="wrap apply">
+    <div>
+      <form id="form" novalidate>
+        <h2 class="sec" style="margin-top:0;border-top:0;padding-top:0">About you</h2>
+        <div class="row">
+          <div class="field"><label for="f-naam">Composer name</label><input id="f-naam" name="composer" type="text" required autocomplete="name"></div>
+          <div class="field"><label for="f-mail">Email address <span class="hint">(not public)</span></label><input id="f-mail" name="email" type="email" required autocomplete="email"></div>
+        </div>
+        <div class="field"><label for="f-site">Your website <span class="hint">(optional)</span></label><input id="f-site" name="website" type="url" placeholder="https://"></div>
+
+        <h2 class="sec">About the work</h2>
+        <div class="row">
+          <div class="field"><label for="f-titel">Title</label><input id="f-titel" name="title" type="text" required></div>
+          <div class="field"><label for="f-jaar">Year of composition</label><input id="f-jaar" name="year" type="number" min="1900" max="2030" placeholder="2025"></div>
+        </div>
+        <div class="row">
+          <div class="field" role="group" aria-labelledby="lbl-genre"><span class="lbl" id="lbl-genre">Genre <span class="hint">(choose all that apply)</span></span><div class="checks" id="f-genre"></div><span class="err" id="genre-err" hidden>Choose at least one genre.</span></div>
+          <div class="field"><label for="f-niveau">Level</label><select id="f-niveau" name="level" required></select></div>
+        </div>
+        <div class="row">
+          <div class="field"><label for="f-stem">Voices</label><select id="f-stem" name="voices" required></select></div>
+          <div class="field"><label for="f-stemtekst">Exact voicing <span class="hint">(e.g. SATB divisi)</span></label><input id="f-stemtekst" name="voicing" type="text"></div>
+        </div>
+        <div class="field" role="group" aria-labelledby="lbl-beg"><span class="lbl" id="lbl-beg">Accompaniment <span class="hint">(choose what applies)</span></span><div class="checks" id="f-beg"></div></div>
+        <div class="row">
+          <div class="field"><label for="f-taal">Language of the text</label><input id="f-taal" name="language" type="text" placeholder="English" required></div>
+          <div class="field"><label for="f-duur">Duration in minutes</label><input id="f-duur" name="duration" type="number" min="1" max="120" required></div>
+        </div>
+        <div class="field"><label for="f-besch">Short description</label><textarea id="f-besch" name="description" maxlength="280" required></textarea><span class="counter" id="counter">0 / 280</span></div>
+
+        <h2 class="sec">Links</h2>
+        <div class="field"><label for="f-luister">Listening link <span class="hint">(YouTube, SoundCloud, Spotify)</span></label><input id="f-luister" name="listen_link" type="url" placeholder="https://"></div>
+        <div class="field"><label for="f-shop">Link to score or webshop</label><input id="f-shop" name="shop" type="url" required placeholder="https://"></div>
+
+        <div class="field"><label class="opt"><input id="f-recht" name="rights_holder" type="checkbox" required> <span>I am the composer or rights holder and this work may be shown here.</span></label></div>
+
+        <button class="btn primary" type="submit">Submit work</button>
+        <p class="fine">In this prototype nothing is sent or saved.</p>
+      </form>
+
+      <div class="done" id="done" hidden tabindex="-1">
+        <h2>Thank you, we've received your submission.</h2>
+        <p>On the real site this now reaches the administrator with the status <b>pending approval</b>. Once approved, the work appears in the database. This is what the submission would look like:</p>
+        <pre id="done-json"></pre>
+        <button class="btn" id="again" type="button">Submit another work</button>
+      </div>
+    </div>
+
+    <aside class="steps">
+      <h2>How it works</h2>
+      <ol>
+        <li>You fill in the details of your work.</li>
+        <li>We review the submission and approve it.</li>
+        <li>Conductors find your work with the filters.</li>
+        <li>They click through to your site or webshop, where they can buy it.</li>
+      </ol>
+    </aside>
+  </div>
+</div>
+
+<footer>
+  <div class="wrap">
+    <span>Choir Library, a choir music database. Part of <a href="https://www.sonicvox.nl" rel="noopener">Sonic Vox</a>.</span>
+    <span>Working title and sample content</span>
+  </div>
+</footer>
+
+<!-- DETAIL -->
+<div class="overlay" id="overlay" role="dialog" aria-modal="true" aria-labelledby="d-titel">
+  <div class="panel" id="panel" tabindex="-1"></div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  /* ---------- Sample data (fictional). On the real site this comes from the database. ---------- */
+  var NIVEAUS = ["Beginner", "Intermediate", "Advanced", "Professional"];
+  var GENRES = ["Classical", "Pop & Jazz", "Folk"];
+  var VOICE_GROUPS = [
+    { label: "Upper voices", items: ["SA", "SMA", "SSAA", "SSMAAA", "SSMMAAAA"] },
+    { label: "Lower voices", items: ["TB", "TBB", "TTBB", "TTTBBB", "TTTTBBBB"] },
+    { label: "Mixed voices", items: ["SAB", "SATB", "SMAB", "SMATB", "SMATBB", "SSAATTBB", "SSSAAATTTBBB"] }
+  ];
+  var STEMGROEPEN = [].concat.apply([], VOICE_GROUPS.map(function (g) { return g.items; }));
+  var BEGELEIDING = ["A cappella", "Piano", "Organ", "Percussion", "Electronics", "Other instrument"];
+
+  var WORKS = [
+    { id: "1", titel: "Waar het water zwijgt", componist: "Mirthe van Laar", jaar: 2025, genres: ["Classical"], niveau: "Advanced", code: "SATB", stemgroep: "SATB", stemTekst: "SATB divisi", begeleiding: ["A cappella"], taal: "Dutch", duur: 5, tekst: "A five-minute piece on a poem about the silence after a storm. Lots of room to breathe, slow shifts of colour and an ending that fades out in three steps.", luister: "YouTube" },
+    { id: "2", titel: "Lichtjes in de gracht", componist: "Daan Oosterhuis", jaar: 2024, genres: ["Classical"], niveau: "Intermediate", code: "SATB", stemgroep: "SATB", stemTekst: "SATB", begeleiding: ["Piano"], taal: "Dutch", duur: 3, tekst: "A new Dutch Christmas song with a singable melody and a piano part that a good amateur can play.", luister: "SoundCloud" },
+    { id: "3", titel: "Rise and Settle", componist: "Noor Haddad", jaar: 2025, genres: ["Pop & Jazz"], niveau: "Beginner", code: "SAB", stemgroep: "SAB", stemTekst: "SAB", begeleiding: ["Piano"], taal: "English", duur: 3, tekst: "An accessible pop number for choirs with few men. The bass line sits comfortably and the choruses are quick to learn.", luister: "Spotify" },
+    { id: "4", titel: "Acht stemmen, één adem", componist: "Ilse Verbeek", jaar: 2022, genres: ["Classical"], niveau: "Professional", code: "SSAATTBB", stemgroep: "", stemTekst: "SSAATTBB", begeleiding: ["A cappella"], taal: "Latin", duur: 9, tekst: "A demanding eight-part work with microtonal details. Suited to chamber choirs with experienced singers.", luister: "YouTube" },
+    { id: "5", titel: "Kali Mera", componist: "Yara Demir", jaar: 2023, genres: ["Folk"], niveau: "Intermediate", code: "SSAA", stemgroep: "", stemTekst: "SSAA and frame drum", begeleiding: ["Other instrument"], taal: "Multilingual", duur: 4, tekst: "A rhythmic song for four female voices and frame drum, based on Anatolian dance rhythms.", luister: "SoundCloud" },
+    { id: "6", titel: "Glitchkoor I", componist: "Joris Bakker", jaar: 2025, genres: ["Classical"], niveau: "Advanced", code: "SATB", stemgroep: "SATB", stemTekst: "SATB and tape", begeleiding: ["Electronics"], taal: "No text (vocal sounds)", duur: 6, tekst: "Choir and electronics in dialogue. The choir sings sounds that a backing track processes live. Click track and audio files are included.", luister: "YouTube" },
+    { id: "7", titel: "Jazzpsalm", componist: "Fenna de Wit", jaar: 2023, genres: ["Pop & Jazz", "Classical"], niveau: "Advanced", code: "SATB", stemgroep: "SATB", stemTekst: "SATB", begeleiding: ["Piano", "Other instrument"], taal: "English", duur: 4, tekst: "A psalm setting in jazz harmony with piano trio. Swinging rhythms and rich chords.", luister: "Spotify" },
+    { id: "8", titel: "Hoor de wind", componist: "Tim Koster", jaar: 2024, genres: ["Folk"], niveau: "Beginner", code: "SA", stemgroep: "Unison or two-part", stemTekst: "Unison and two-part", begeleiding: ["Piano"], taal: "Dutch", duur: 2, tekst: "A short song for children's choir about the wind in autumn. Movements for the chorus are marked in the score.", luister: "YouTube" },
+    { id: "9", titel: "Gospel in G", componist: "Marlon Adjei", jaar: 2022, genres: ["Pop & Jazz"], niveau: "Intermediate", code: "SATB", stemgroep: "SATB", stemTekst: "SATB", begeleiding: ["Piano", "Percussion"], taal: "English", duur: 4, tekst: "A rousing gospel with call-and-response and a solo for alto or tenor.", luister: "YouTube" },
+    { id: "10", titel: "Requiem voor een rivier", componist: "Anouk Smit", jaar: 2021, genres: ["Classical"], niveau: "Professional", code: "SATB", stemgroep: "SATB", stemTekst: "SATB", begeleiding: ["Organ"], taal: "Latin", duur: 18, tekst: "A requiem in five movements with organ. Written for experienced choirs and a large church space.", luister: "SoundCloud" },
+    { id: "11", titel: "Wiegelied zonder naam", componist: "Lotte Hendriks", jaar: 2025, genres: ["Folk"], niveau: "Beginner", code: "SA", stemgroep: "", stemTekst: "SA", begeleiding: ["A cappella"], taal: "Dutch", duur: 2, tekst: "A short a cappella arrangement of an anonymous lullaby, also suited as an encore.", luister: "YouTube" },
+    { id: "12", titel: "Stadsgeluid", componist: "Sam Peters", jaar: 2024, genres: ["Pop & Jazz"], niveau: "Intermediate", code: "TTBB", stemgroep: "Equal voices (SSA, TTBB)", stemTekst: "TTBB and electronics", begeleiding: ["Electronics"], taal: "Dutch", duur: 5, tekst: "A male-voice piece in which recorded street sounds set the rhythm. The recordings come as an audio file.", luister: "SoundCloud" }
+  ];
+  var SHOP = "https://example.com/";
+
+  /* ---------- Facets ---------- */
+  var FACETS = [
+    { key: "genre", label: "Genre", options: GENRES, get: function (w) { return w.genres; } },
+    { key: "niveau", label: "Level", options: NIVEAUS, get: function (w) { return [w.niveau]; } },
+    { key: "stemgroep", label: "Voices", options: STEMGROEPEN, groups: VOICE_GROUPS, get: function (w) { return [w.code]; } },
+    { key: "begeleiding", label: "Accompaniment", options: BEGELEIDING, get: function (w) { return w.begeleiding; } },
+    { key: "taal", label: "Language", options: uniq(WORKS.map(function (w) { return w.taal; })).sort(), get: function (w) { return [w.taal]; } }
+  ];
+  function uniq(a) { return a.filter(function (x, i) { return a.indexOf(x) === i; }); }
+
+  var state = { q: "", sort: "nieuw", sel: {} };
+  FACETS.forEach(function (f) { state.sel[f.key] = []; });
+
+  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+  function $(id) { return document.getElementById(id); }
+
+  function matches(w, skipKey) {
+    if (state.q) {
+      var hay = (w.titel + " " + w.componist + " " + w.tekst + " " + w.genres.join(" ")).toLowerCase();
+      if (hay.indexOf(state.q.toLowerCase()) === -1) return false;
+    }
+    return FACETS.every(function (f) {
+      if (f.key === skipKey) return true;
+      var sel = state.sel[f.key];
+      if (!sel.length) return true;
+      var vals = f.get(w);
+      return sel.some(function (s) { return vals.indexOf(s) !== -1; });
+    });
+  }
+
+  function buildFacets() {
+    var html = "";
+    FACETS.forEach(function (f) {
+      html += '<fieldset><legend>' + esc(f.label) + '</legend><div class="opts">';
+      var idx = 0;
+      function opt(o) {
+        var id = "o-" + f.key + "-" + (idx++);
+        return '<label class="opt" data-f="' + f.key + '" data-o="' + esc(o) + '" for="' + id + '"><input type="checkbox" id="' + id + '" data-f="' + f.key + '" value="' + esc(o) + '"><span>' + esc(o) + '</span><span class="n"></span></label>';
+      }
+      if (f.groups) {
+        f.groups.forEach(function (g) { html += '<div class="sub">' + esc(g.label) + '</div>' + g.items.map(opt).join(""); });
+      } else {
+        f.options.forEach(function (o) { html += opt(o); });
+      }
+      html += '</div></fieldset>';
+    });
+    $("facets").innerHTML = html;
+  }
+
+  function cssEsc(s) { return s.replace(/["\\]/g, "\\$&"); }
+  function updateCounts() {
+    FACETS.forEach(function (f) {
+      var pool = WORKS.filter(function (w) { return matches(w, f.key); });
+      f.options.forEach(function (o) {
+        var n = pool.filter(function (w) { return f.get(w).indexOf(o) !== -1; }).length;
+        var el = document.querySelector('.opt[data-f="' + f.key + '"][data-o="' + cssEsc(o) + '"]');
+        if (!el) return;
+        el.querySelector(".n").textContent = n;
+        var checked = state.sel[f.key].indexOf(o) !== -1;
+        el.classList.toggle("dim", n === 0 && !checked);
+      });
+    });
+  }
+
+  function voices(code) {
+    if (code.length > 6) return '<div class="voices" aria-label="Voices: ' + esc(code) + '"><span class="v wide">' + esc(code) + '</span></div>';
+    return '<div class="voices" aria-label="Voices: ' + esc(code) + '">' + code.split("").map(function (c) { return '<span class="v">' + esc(c) + '</span>'; }).join("") + '</div>';
+  }
+  function level(n) {
+    var i = NIVEAUS.indexOf(n) + 1, b = "";
+    for (var k = 1; k <= 4; k++) b += '<span class="' + (k <= i ? "on" : "") + '"></span>';
+    return '<div class="level"><div class="bars" aria-hidden="true">' + b + '</div>' + esc(n) + '</div>';
+  }
+  function sorted(list) {
+    var l = list.slice();
+    if (state.sort === "titel") l.sort(function (a, b) { return a.titel.localeCompare(b.titel, "en"); });
+    else if (state.sort === "duur") l.sort(function (a, b) { return a.duur - b.duur; });
+    else if (state.sort === "niveau") l.sort(function (a, b) { return NIVEAUS.indexOf(a.niveau) - NIVEAUS.indexOf(b.niveau); });
+    else l.sort(function (a, b) { return b.jaar - a.jaar || a.titel.localeCompare(b.titel, "en"); });
+    return l;
+  }
+  function render() {
+    var list = sorted(WORKS.filter(function (w) { return matches(w); }));
+    $("count").textContent = list.length + (list.length === 1 ? " work" : " works");
+    if (!list.length) {
+      $("grid").innerHTML = '<div class="empty" style="grid-column:1/-1"><h3>Nothing found</h3><p>Try fewer filters or another search term.</p><button class="btn" type="button" id="empty-clear">Clear all filters</button></div>';
+      var ec = $("empty-clear"); if (ec) ec.onclick = clearAll;
+    } else {
+      $("grid").innerHTML = list.map(function (w) {
+        return '<article class="card"><div class="card-top"><div><div class="genre">' + esc(w.genres.join(' · ')) + '</div><h3><a href="#work-' + w.id + '">' + esc(w.titel) + '</a></h3><p class="by">' + esc(w.componist) + ', ' + w.jaar + '</p></div>' + voices(w.code) + '</div>' +
+          '<ul class="meta"><li>' + esc(w.stemTekst) + '</li><li>' + esc(w.begeleiding.join(", ")) + '</li><li>' + esc(w.taal) + '</li></ul>' +
+          '<div class="card-foot">' + level(w.niveau) + '<span class="dur">' + w.duur + ' min</span></div></article>';
+      }).join("");
+    }
+    var chips = "", n = 0;
+    FACETS.forEach(function (f) { state.sel[f.key].forEach(function (o) { n++; chips += '<button type="button" class="chip" data-f="' + f.key + '" data-o="' + esc(o) + '" aria-label="Remove filter ' + esc(o) + '">' + esc(o) + ' <b aria-hidden="true">×</b></button>'; }); });
+    $("chips").innerHTML = chips;
+    $("filter-badge").textContent = n ? "(" + n + ")" : "";
+    updateCounts();
+    syncTiles();
+  }
+
+  var HUES = [255, 280, 305];
+  function buildTiles() {
+    var html = '<button type="button" class="tile all" data-g="" aria-pressed="true"><b>All genres</b><span>' + WORKS.length + ' works</span></button>';
+    GENRES.forEach(function (g, i) {
+      var n = WORKS.filter(function (w) { return w.genres.indexOf(g) !== -1; }).length;
+      html += '<button type="button" class="tile" data-g="' + esc(g) + '" style="--h:' + HUES[i % HUES.length] + '" aria-pressed="false"><b>' + esc(g) + '</b><span>' + n + (n === 1 ? ' work' : ' works') + '</span></button>';
+    });
+    $("genre-tiles").innerHTML = html;
+  }
+  function syncTiles() {
+    var sel = state.sel.genre;
+    document.querySelectorAll("#genre-tiles .tile").forEach(function (t) {
+      var g = t.dataset.g;
+      t.setAttribute("aria-pressed", g === "" ? (sel.length === 0) : (sel.indexOf(g) !== -1));
+    });
+  }
+  $("genre-tiles").addEventListener("click", function (e) {
+    var t = e.target.closest(".tile"); if (!t) return;
+    var g = t.dataset.g, arr = state.sel.genre;
+    if (g === "") arr.length = 0;
+    else { var i = arr.indexOf(g); if (i === -1) arr.push(g); else arr.splice(i, 1); }
+    document.querySelectorAll('#facets input[data-f="genre"]').forEach(function (inp) { inp.checked = arr.indexOf(inp.value) !== -1; });
+    render();
+    if (g !== "") $("results").scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  function clearAll() {
+    FACETS.forEach(function (f) { state.sel[f.key] = []; });
+    state.q = ""; $("q").value = "";
+    document.querySelectorAll('#facets input[type=checkbox]').forEach(function (i) { i.checked = false; });
+    render();
+  }
+
+  $("facets").addEventListener("change", function (e) {
+    var t = e.target; if (!t.dataset.f) return;
+    var arr = state.sel[t.dataset.f], i = arr.indexOf(t.value);
+    if (t.checked && i === -1) arr.push(t.value);
+    if (!t.checked && i !== -1) arr.splice(i, 1);
+    render();
+  });
+  $("chips").addEventListener("click", function (e) {
+    var b = e.target.closest(".chip"); if (!b) return;
+    var arr = state.sel[b.dataset.f], i = arr.indexOf(b.dataset.o);
+    if (i !== -1) arr.splice(i, 1);
+    document.querySelectorAll('#facets input[data-f="' + b.dataset.f + '"]').forEach(function (inp) { if (inp.value === b.dataset.o) inp.checked = false; });
+    render();
+  });
+  $("q").addEventListener("input", function (e) { state.q = e.target.value.trim(); render(); });
+  $("sort").addEventListener("change", function (e) { state.sort = e.target.value; render(); });
+  $("clear-all").addEventListener("click", clearAll);
+  $("filter-toggle").addEventListener("click", function () {
+    var f = $("filters"), open = f.classList.toggle("open");
+    $("filter-toggle").setAttribute("aria-expanded", open);
+  });
+
+  function openDetail(id) {
+    var w = WORKS.filter(function (x) { return x.id === id; })[0];
+    if (!w) { closeDetail(); return; }
+    $("panel").innerHTML =
+      '<button class="close" type="button" id="d-close" aria-label="Close">×</button>' +
+      '<div class="genre">' + esc(w.genres.join(' · ')) + '</div><h2 id="d-titel">' + esc(w.titel) + '</h2>' +
+      '<p class="by">' + esc(w.componist) + ', ' + w.jaar + '</p>' + voices(w.code) +
+      '<p class="desc">' + esc(w.tekst) + '</p>' +
+      '<dl class="facts"><dt>Level</dt><dd>' + esc(w.niveau) + '</dd><dt>Voicing</dt><dd>' + esc(w.stemTekst) + '</dd><dt>Accompaniment</dt><dd>' + esc(w.begeleiding.join(", ")) + '</dd><dt>Language</dt><dd>' + esc(w.taal) + '</dd><dt>Duration</dt><dd>' + w.duur + ' minutes</dd></dl>' +
+      '<div class="actions"><a class="btn primary" href="' + SHOP + '" target="_blank" rel="noopener">View score at the composer ↗</a>' +
+      '<a class="btn" href="' + SHOP + '" target="_blank" rel="noopener">Listen on ' + esc(w.luister) + ' ↗</a>' +
+      '<a class="btn" href="' + SHOP + '" target="_blank" rel="noopener">Website of ' + esc(w.componist) + ' ↗</a></div>' +
+      '<p class="fine">You buy directly from the composer. In this prototype the links point to an empty test page.</p>';
+    $("overlay").classList.add("open");
+    $("d-close").onclick = function () { location.hash = ""; };
+    $("panel").focus();
+  }
+  function closeDetail() { $("overlay").classList.remove("open"); }
+  $("overlay").addEventListener("click", function (e) { if (e.target === $("overlay")) location.hash = ""; });
+  document.addEventListener("keydown", function (e) { if (e.key === "Escape" && $("overlay").classList.contains("open")) location.hash = ""; });
+
+  function fillSelect(id, items, ph) {
+    $(id).innerHTML = '<option value="">' + ph + '</option>' + items.map(function (x) { return '<option>' + esc(x) + '</option>'; }).join("");
+  }
+  $("f-genre").innerHTML = GENRES.map(function (g, i) { return '<label class="opt" for="gen' + i + '"><input type="checkbox" id="gen' + i + '" name="genres" value="' + esc(g) + '"> ' + esc(g) + '</label>'; }).join("");
+  $("f-genre").addEventListener("change", function () { $("genre-err").hidden = !!document.querySelector('#f-genre input:checked'); });
+  fillSelect("f-niveau", NIVEAUS, "Choose a level");
+  $("f-stem").innerHTML = '<option value="">Choose the voices</option>' + VOICE_GROUPS.map(function (g) { return '<optgroup label="' + esc(g.label) + '">' + g.items.map(function (x) { return '<option>' + esc(x) + '</option>'; }).join("") + '</optgroup>'; }).join("");
+  $("f-beg").innerHTML = BEGELEIDING.map(function (b, i) { return '<label class="opt" for="beg' + i + '"><input type="checkbox" id="beg' + i + '" name="accompaniment" value="' + esc(b) + '"> ' + esc(b) + '</label>'; }).join("");
+  $("f-besch").addEventListener("input", function (e) { $("counter").textContent = e.target.value.length + " / 280"; });
+  $("form").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var form = $("form");
+    if (!document.querySelector('#f-genre input:checked')) { $("genre-err").hidden = false; var g0 = $("gen0"); if (g0) g0.focus(); return; }
+    if (!form.checkValidity()) { form.reportValidity(); return; }
+    var d = new FormData(form), out = {};
+    d.forEach(function (v, k) { if (k === "accompaniment" || k === "genres") { (out[k] = out[k] || []).push(v); } else if (k !== "email") { out[k] = v; } });
+    out.accompaniment = out.accompaniment || [];
+    out.genres = out.genres || [];
+    out.status = "pending approval";
+    $("done-json").textContent = JSON.stringify(out, null, 2);
+    form.hidden = true; $("done").hidden = false; $("done").focus();
+    window.scrollTo(0, 0);
+  });
+  $("again").addEventListener("click", function () { $("form").reset(); $("counter").textContent = "0 / 280"; $("form").hidden = false; $("done").hidden = true; });
+
+  /* ---------- Routing via #hash ---------- */
+  function route() {
+    var h = location.hash.replace("#", "");
+    var apply = h === "submit";
+    $("view-zoek").hidden = apply;
+    $("view-aanmelden").hidden = !apply;
+    document.title = apply ? "Submit your work" : "Choir Library";
+    if (h.indexOf("work-") === 0 && !apply) openDetail(h.slice(5)); else closeDetail();
+  }
+  window.addEventListener("hashchange", route);
+
+  buildFacets();
+  buildTiles();
+  render();
+  route();
+})();
+</script>
+</body>
+</html>
