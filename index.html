@@ -316,14 +316,16 @@ footer .wrap { padding-top: 26px; padding-bottom: 32px; display: flex; gap: 16px
 
         <div class="field"><label class="opt"><input id="f-recht" name="rights_holder" type="checkbox" required> <span>I am the composer or rights holder and this work may be shown here.</span></label></div>
 
-        <button class="btn primary" type="submit">Submit work</button>
-        <p class="fine">In this prototype nothing is sent or saved.</p>
+        <input type="checkbox" name="botcheck" id="f-bot" tabindex="-1" autocomplete="off" style="position:absolute;left:-9999px" aria-hidden="true">
+        <button class="btn primary" type="submit" id="submit-btn">Submit work</button>
+        <p class="err" id="submit-err" role="alert" hidden>Something went wrong and your submission was not sent. Please try again in a moment.</p>
+        <p class="fine" id="proto-note">In this prototype nothing is sent or saved.</p>
       </form>
 
       <div class="done" id="done" hidden tabindex="-1">
-        <h2>Thank you, we've received your submission.</h2>
-        <p>On the real site this now reaches the administrator with the status <b>pending approval</b>. Once approved, the work appears in the database. This is what the submission would look like:</p>
-        <pre id="done-json"></pre>
+        <h2 id="done-title">Thank you, we've received your submission.</h2>
+        <p id="done-text">We'll review your work and add it to the database once it is approved.</p>
+        <pre id="done-json" hidden></pre>
         <button class="btn" id="again" type="button">Submit another work</button>
       </div>
     </div>
@@ -355,6 +357,10 @@ footer .wrap { padding-top: 26px; padding-bottom: 32px; display: flex; gap: 16px
 <script>
 (function () {
   "use strict";
+
+  /* Form delivery. Paste the Web3Forms access key between the quotes to switch on real submissions (emails to the owner of that key). */
+  var FORM_KEY = "681a6056-0a03-4666-8269-6ade2ab25f17";
+  var FORM_ENDPOINT = "https://api.web3forms.com/submit";
 
   /* ---------- Sample data (fictional). On the real site this comes from the database. ---------- */
   var NIVEAUS = ["Beginner", "Intermediate", "Advanced", "Professional"];
@@ -563,19 +569,48 @@ footer .wrap { padding-top: 26px; padding-bottom: 32px; display: flex; gap: 16px
   $("f-stem").innerHTML = '<option value="">Choose the voices</option>' + VOICE_GROUPS.map(function (g) { return '<optgroup label="' + esc(g.label) + '">' + g.items.map(function (x) { return '<option>' + esc(x) + '</option>'; }).join("") + '</optgroup>'; }).join("");
   $("f-beg").innerHTML = BEGELEIDING.map(function (b, i) { return '<label class="opt" for="beg' + i + '"><input type="checkbox" id="beg' + i + '" name="accompaniment" value="' + esc(b) + '"> ' + esc(b) + '</label>'; }).join("");
   $("f-besch").addEventListener("input", function (e) { $("counter").textContent = e.target.value.length + " / 280"; });
+  if (FORM_KEY) $("proto-note").hidden = true;
+  function showDone(title, text, json) {
+    $("done-title").textContent = title; $("done-text").textContent = text;
+    $("done-json").hidden = !json; if (json) $("done-json").textContent = json;
+    $("form").hidden = true; $("done").hidden = false; $("done").focus(); window.scrollTo(0, 0);
+  }
   $("form").addEventListener("submit", function (e) {
     e.preventDefault();
     var form = $("form");
+    $("submit-err").hidden = true;
     if (!document.querySelector('#f-genre input:checked')) { $("genre-err").hidden = false; var g0 = $("gen0"); if (g0) g0.focus(); return; }
     if (!form.checkValidity()) { form.reportValidity(); return; }
     var d = new FormData(form), out = {};
-    d.forEach(function (v, k) { if (k === "accompaniment" || k === "genres") { (out[k] = out[k] || []).push(v); } else if (k !== "email") { out[k] = v; } });
+    d.forEach(function (v, k) { if (k === "accompaniment" || k === "genres") { (out[k] = out[k] || []).push(v); } else if (k !== "botcheck") { out[k] = v; } });
     out.accompaniment = out.accompaniment || [];
     out.genres = out.genres || [];
     out.status = "pending approval";
-    $("done-json").textContent = JSON.stringify(out, null, 2);
-    form.hidden = true; $("done").hidden = false; $("done").focus();
-    window.scrollTo(0, 0);
+    if (!FORM_KEY) {
+      var preview = JSON.parse(JSON.stringify(out)); delete preview.email;
+      showDone("Thank you, we've received your submission.", "This is a prototype, so nothing was sent. On the real site this reaches the administrator with the status pending approval. This is what the submission would look like:", JSON.stringify(preview, null, 2));
+      return;
+    }
+    var payload = {
+      access_key: FORM_KEY,
+      subject: "New work submitted: " + out.title,
+      from_name: "Choir Library submissions",
+      botcheck: $("f-bot").checked,
+      composer: out.composer, email: out.email, website: out.website || "-",
+      title: out.title, year: out.year || "-", genres: out.genres.join(", "), level: out.level,
+      voices: out.voices, voicing: out.voicing || "-", accompaniment: out.accompaniment.join(", ") || "-",
+      language: out.language, duration_minutes: out.duration, description: out.description,
+      listen_link: out.listen_link || "-", shop_link: out.shop, rights_holder_confirmed: "yes", status: out.status
+    };
+    var btn = $("submit-btn"); btn.disabled = true; btn.textContent = "Sending…";
+    fetch(FORM_ENDPOINT, { method: "POST", headers: { "Content-Type": "application/json", "Accept": "application/json" }, body: JSON.stringify(payload) })
+      .then(function (r) { return r.json(); })
+      .then(function (j) {
+        if (j && j.success) { showDone("Thank you, we've received your submission.", "We'll review your work and add it to the database once it is approved."); }
+        else { throw new Error("rejected"); }
+      })
+      .catch(function () { $("submit-err").hidden = false; })
+      .then(function () { btn.disabled = false; btn.textContent = "Submit work"; });
   });
   $("again").addEventListener("click", function () { $("form").reset(); $("counter").textContent = "0 / 280"; $("form").hidden = false; $("done").hidden = true; });
 
